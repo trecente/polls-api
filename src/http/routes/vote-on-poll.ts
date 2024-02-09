@@ -28,8 +28,6 @@ export async function voteOnPoll(app: FastifyInstance) {
         },
       });
 
-      console.log(userPreviousVoteOnPoll);
-
       if(userPreviousVoteOnPoll) {
         if(userPreviousVoteOnPoll.pollOptionsId !== pollOptionsId) {
           // Delete previous vote
