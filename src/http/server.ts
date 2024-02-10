@@ -1,8 +1,6 @@
 import fastify from 'fastify';
-import { createPoll } from './routes/create-poll';
-import { getPoll } from './routes/get-poll';
-import { voteOnPoll } from './routes/vote-on-poll';
 import cookie from '@fastify/cookie';
+import { Routes as routes } from './routes';
 
 const app = fastify();
 
@@ -11,9 +9,7 @@ app.register(cookie, {
   hook: 'onRequest',
 });
 
-app.register(getPoll);
-app.register(createPoll);
-app.register(voteOnPoll);
+app.register(routes);
 
 app.listen({ port: 3333 }).then(() => {
   console.log('🔥 Server running at http://localhost:3333');
