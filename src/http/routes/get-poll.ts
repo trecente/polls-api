@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { FastifyInstance } from 'fastify';
 import { prisma } from '../../lib/prisma';
-import { getVotes } from '../../utils/voteUtils';
+import { fetchPollVotes } from '../../utils/poll-votes-fetcher';
 
 export async function getPoll(app: FastifyInstance) {
   app.get('/polls/:pollId', async (req, reply) => {
@@ -29,7 +29,7 @@ export async function getPoll(app: FastifyInstance) {
       return reply.status(400).send({ message: 'Poll not found.' });
     }
 
-    const votes = await getVotes(pollId);
+    const votes = await fetchPollVotes(pollId);
 
     return reply.send({
       poll: {
