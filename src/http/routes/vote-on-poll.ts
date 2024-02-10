@@ -1,6 +1,7 @@
 import { z } from 'zod';
-import { prisma } from '../../lib/prisma';
 import { FastifyInstance } from 'fastify';
+import { prisma } from '../../lib/prisma';
+import { redis } from '../../lib/redis';
 import { randomUUID } from 'node:crypto';
 
 export async function voteOnPoll(app: FastifyInstance) {
@@ -16,6 +17,16 @@ export async function voteOnPoll(app: FastifyInstance) {
     const { pollId } = voteOnPollParams.parse(req.params);
     const { pollOptionsId } = voteOnPollBody.parse(req.body);
 
+    const poll = await prisma.poll.findUnique({
+      where: {
+        id: pollId,
+      },
+    });
+
+    if (!poll) {
+      return reply.status(400).send({ message: 'Poll not found.' });
+    }
+
     let { sessionId } = req.cookies;
 
     if (sessionId) {
@@ -28,20 +39,19 @@ export async function voteOnPoll(app: FastifyInstance) {
         },
       });
 
-      if(userPreviousVoteOnPoll) {
-        if(userPreviousVoteOnPoll.pollOptionsId !== pollOptionsId) {
-          // Delete previous vote
+      if (userPreviousVoteOnPoll) {
+        if (userPreviousVoteOnPoll.pollOptionsId !== pollOptionsId) {
           await prisma.vote.delete({
             where: {
               id: userPreviousVoteOnPoll.id,
             },
           });
+
+          await redis.zincrby(pollId, -1, userPreviousVoteOnPoll.pollOptionsId);
         } else {
-          // User already voted on this poll
           return reply.status(400).send({ message: 'You already voted on this poll.' });
         }
       }
-
     }
 
     if (!sessionId) {
@@ -62,6 +72,8 @@ export async function voteOnPoll(app: FastifyInstance) {
         pollOptionsId,
       },
     });
+
+    await redis.zincrby(pollId, 1, pollOptionsId);
 
     return reply.status(201).send({ message: 'Voted successfully!' });
   });
