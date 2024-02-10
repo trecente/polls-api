@@ -24,7 +24,7 @@ model PollOptions {
   title  String
   pollId String
 
-  poll  Poll   @relation(fields: [pollId], references: [id])
+  poll  Poll   @relation(fields: [pollId], references: [id], onDelete: Cascade)
   votes Vote[]
 
   @@map("poll_options")
@@ -37,8 +37,8 @@ model Vote {
   pollOptionsId String
   createdAt     DateTime @default(now())
 
-  pollOptions PollOptions @relation(fields: [pollOptionsId], references: [id])
-  poll        Poll        @relation(fields: [pollId], references: [id])
+  pollOptions PollOptions @relation(fields: [pollOptionsId], references: [id], onDelete: Cascade)
+  poll        Poll        @relation(fields: [pollId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, pollId])
   @@map("vote")
