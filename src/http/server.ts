@@ -1,5 +1,6 @@
 import fastify from 'fastify';
 import cookie from '@fastify/cookie';
+import websocket from '@fastify/websocket';
 import { Routes as routes } from './routes';
 
 const app = fastify();
@@ -8,6 +9,8 @@ app.register(cookie, {
   secret: 'polls_app',
   hook: 'onRequest',
 });
+
+app.register(websocket);
 
 app.register(routes);
 
