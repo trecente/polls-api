@@ -7,84 +7,105 @@
   </a>
 </p>
 
-## Requisites
+## Features:
+
+- Creation of polls with multiple answer options.
+- Real-time voting with instant updates of the results.
+- Ranking of answer options according to the number of votes.
+- WebSocket support for real-time monitoring.
+
+## Requirements:
 
 - Node.js
 - Docker
 
-## Setup
 
-- Clone the repository
-- Install dependencies (`pnpm install`)
-- Setup PostgreSQL and Redis (`docker compose up -d`)
-- Copy `.env.example` file (`cp .env.example .env`)
-- Run application (`pnpm dev`)
-- Test it!
+## Getting Started:
+
+```bash
+# Clone the repository
+git clone https://github.com/trecente/polls-api.git
+
+# Install dependencies
+pnpm install
+
+# Configure PostgreSQL and Redis
+docker compose up -d
+
+# Create a .env file from the example
+cp .env.example .env
+
+# Start the application
+pnpm dev
+```
  
-## HTTP
+## API Endpoints:
 
-### Endpoints
+### Create Poll
+This endpoint allows you to create a new poll with a question and multiple answer options.
+#### POST `/polls`
 
-- POST `/polls`: Create a new poll.
-- GET `/polls/:pollId`: Retrieve details of a specific poll.
-- POST `/polls/:pollId/votes`: Cast a vote on a poll option.
-- DELETE `/polls/:pollId`: Delete a poll.
-
-Refer to the detailed request/response examples below.
-
-### POST `/polls`
-
-#### Request Body
+#### Request Body:
 
 ```json
 {
-  "title": "What is your favorite color?",
-  "options": ["Red", "Blue", "Green"]
+  "title": "What is your favorite movie genre?",
+  "options": ["Sci-Fi", "Comedy", "Drama", "Thriller"]
 }
 ```
 
-#### Response Body
+#### Response Body:
 
 ```json
 {
   "pollId": "42d132e2-0327-4821-a7ed-06a21dff62ab"
 }
 ```
+### Get Poll Details
+This endpoint retrieves details of a specific poll by its unique identifier.
+#### GET `/polls/:pollId`
 
-### GET `/polls/:pollId`
-
-#### Response Body
+#### Response Body:
 
 ```json
 {
   "poll": {
     "id": "42d132e2-0327-4821-a7ed-06a21dff62ab",
-    "title": "What is your favorite color?",
+    "title": "What is your favorite movie genre?",
     "createdAt": "2024-02-10T23:25:18.952Z",
     "options": [
       {
         "id": "ec452146-01e9-4a67-943c-dc5bc86c7b2b",
-        "title": "Red",
-        "score": 0
+        "title": "Sci-Fi",
+        "score": 3
       },
       {
         "id": "fd365ec3-466a-47e1-b623-bd66d2d7b059",
-        "title": "Blue",
-        "score": 0
+        "title": "Comedy",
+        "score": 2
       },
       {
         "id": "d37c03b2-2af1-426d-b801-dffa14c9cdad",
-        "title": "Green",
+        "title": "Drama",
+        "score": 1
+      },
+      {
+        "id": "a7b24df1-983e-47c2-b028-91c5678df23a",
+        "title": "Thriller",
         "score": 0
       }
     ]
   }
 }
 ```
+### Notes:
+- Poll details include id, title, creation date, and options with their id, title, and current vote count.
 
-### POST `/polls/:pollId/votes`
+### Cast Vote
+This endpoint allows users to vote for a specific option in a poll.
+#### POST `/polls/:pollId/votes`
 
-#### Request Body
+#### Request Body:
 
 ```json
 {
@@ -92,35 +113,36 @@ Refer to the detailed request/response examples below.
 }
 ```
 
-#### Response Body
+#### Response Body:
 
 ```json
 {
   "message": "Voted successfully!"
 }
 ```
+### Notes:
+- Users can only vote once per poll.
+- Invalid option IDs will result in an error.
 
-### DELETE `/polls/:pollId`
+### Delete Poll
+This endpoint allows deleting a poll by its unique identifier.
+#### DELETE `/polls/:pollId`
 
-#### Response Body
+#### Response Body:
 
 ```json
 {
   "message": "Poll deleted successfully!"
 }
 ```
+### Notes:
+- Deleting a poll removes all associated votes and data.
 
-## WebSockets
+## WebSockets:
 
-Connect to `ws:/polls/:pollId/results` for live updates in JSON format.
-- The server broadcasts messages in the following format:
-```json
-{
-  "pollOptionsId": "ec452146-01e9-4a67-943c-dc5bc86c7b2b",
-  "votes": 1
-}
-```
+Connect to `ws:/polls/:pollId/results` for live updates on vote counts in JSON format.
+The server broadcasts messages with option ID and current vote count.
 
-## Show your support
+## Show your support:
 
-Give a ⭐️ if this project helped you!
+If this project helped you, give it a star! ⭐️
